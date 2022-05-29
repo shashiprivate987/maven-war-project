@@ -1,14 +1,15 @@
 pipeline {
-  agent {label 'label11'}
-stages {
-
-  stage('git-checkout') {
-  steps {
-git 'https://github.com/vijay2181/maven-war-project1.git'
+  agent any
+    stages {
+    
+        stage('git-checkout') {
+            steps {
+                //git 'https://github.com/vijay2181/maven-war-project1.git'
+                git 'https://github.com/shashiprivate987/maven-war-project.git'
            }
-}
+        }
   
-  stage('environment-setting') {
+        stage('environment-setting') {
              steps {
                   script {
                        env.BUILD = "yes" // Setting env variable for Build 
@@ -17,52 +18,51 @@ git 'https://github.com/vijay2181/maven-war-project1.git'
                  }
 
 
-   stage('Build')  {
+        stage('Build')  {
 
-   when {environment name: 'BUILD', value: 'yes'}
-   steps { 
-               echo "Building artifacts ..."
-               sh "mvn clean package "
+            when {environment name: 'BUILD', value: 'yes'}
+                steps { 
+                    echo "Building artifacts ..."
+                    sh "mvn clean package "
+                    }
                }
-               }
-stage('Code Coverage') {
+        stage('Code Coverage') {
 
-   when {environment name: 'BUILD', value: 'yes'}
-  steps {
-     echo "Running Code Coverage ..." 
+            when {environment name: 'BUILD', value: 'yes'}
+                steps {
+                    echo "Running Code Coverage ..." 
 	   
-	 }
-                  }
+	               }
+                }
 	
-	stage('SonarQube Analysis')                     
-  {
-    when {environment name: 'BUILD', value: 'yes'}
-    steps{
-     
-         echo 'code analysis'                                                  //it will call static code analysis and capture the details
-	  }
-    }
+	   stage('SonarQube Analysis') {
+            when {environment name: 'BUILD', value: 'yes'}
+                steps{
+                    echo 'code analysis'    //it will call static code analysis and capture the details
+	               }
+                }
 	
   
-stage("Quality Gate"){ 
-    when {environment name: 'BUILD', value: 'yes'}
-    steps{
-	    echo 'quality gates'}
-}
+        stage("Quality Gate") { 
+            when {environment name: 'BUILD', value: 'yes'}
+                steps{
+	               echo 'quality gates'
+                   }
+                }
 	
 	
-	stage('Stage Artifacts') 
-  {          
+	   stage('Stage Artifacts') {          
   
-   when {environment name: 'BUILD', value: 'yes'}
-   steps {          
-    script { 
-	    /* Define the Artifactory Server details */
-        def server = Artifactory.server 'jfrog'                       //Artifactory.server is a fuction got by installing artifactory plugin
-        def uploadSpec = """{
-            "files": [{
-                "pattern": "target/project-3-1.0-SNAPSHOT.war",                                  
-                "target": "demoCICD"    
+            when {environment name: 'BUILD', value: 'yes'}
+                steps {          
+                    script { 
+	               /* Define the Artifactory Server details */
+                   //Artifactory.server is a fuction got by installing artifactory plugin
+                    def server = Artifactory.server 'jfrog'                       
+                    def uploadSpec = """{
+                    "files": [{
+                    "pattern": "target/project-3-1.0-SNAPSHOT.war",                                  
+                    "target": "demoCICD"    
                                                        
             }]
         }"""                                                                                                //demoCICD is the repository name in jfrog
